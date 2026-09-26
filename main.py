@@ -10,9 +10,10 @@ import trimesh
 from skimage import measure
 
 app = FastAPI(title="SDAPM Precision Medicine Platform", version="1.0")
-UPLOAD_DIR = Path("processing/inputs")
-OUTPUT_DIR = Path("processing/outputs")
-MESH_DIR = Path("frontend/public/models")
+PROJECT_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = PROJECT_DIR / "processing/inputs"
+OUTPUT_DIR = PROJECT_DIR / "processing/outputs"
+MESH_DIR = PROJECT_DIR / "frontend/public/models"
 for directory in (UPLOAD_DIR, OUTPUT_DIR, MESH_DIR):
     directory.mkdir(parents=True, exist_ok=True)
 
@@ -58,10 +59,16 @@ async def process_and_reconstruct(file: UploadFile = File(...)):
             mesh.export(str(MESH_DIR / mesh_name))
             jobs[job_id]["models"].append(mesh_name)
         jobs[job_id]["status"] = "completed"
+    except FileNotFoundError:
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["errors"].append(
+            "TotalSegmentator is not installed in the serverless runtime. "
+            "Run segmentation in a dedicated worker and submit the result here."
+        )
     except subprocess.TimeoutExpired:
         jobs[job_id]["status"] = "failed"
         jobs[job_id]["errors"].append("Segmentation exceeded the 30 minute processing limit")
-    except (subprocess.CalledProcessError, Exception) as error:
+    except Exception as error:
         jobs[job_id]["status"] = "failed"
         jobs[job_id]["errors"].append(str(error))
         raise HTTPException(status_code=500, detail=jobs[job_id])

@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+nibabel
+scikit-image
+trimesh
+numpy
+
+# Optional GPU-heavy segmentation dependency. Install separately in a
+# dedicated worker/container rather than the Vercel serverless function.
+# TotalSegmentator
