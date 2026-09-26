@@ -1,65 +1,70 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.staticfiles import StaticFiles
 import shutil
 from pathlib import Path
 import subprocess
+import uuid
 import nibabel as nib
 import numpy as np
 import trimesh
 from skimage import measure
 
 app = FastAPI(title="SDAPM Precision Medicine Platform", version="1.0")
-
 UPLOAD_DIR = Path("processing/inputs")
 OUTPUT_DIR = Path("processing/outputs")
 MESH_DIR = Path("frontend/public/models")
+for directory in (UPLOAD_DIR, OUTPUT_DIR, MESH_DIR):
+    directory.mkdir(parents=True, exist_ok=True)
 
-for d in [UPLOAD_DIR, OUTPUT_DIR, MESH_DIR]:
-    d.mkdir(parents=True, exist_ok=True)
+jobs: dict[str, dict] = {}
+
+@app.get("/api/health")
+async def health():
+    return {"status": "ok", "service": "sdapm-processing", "active_jobs": len(jobs)}
+
+@app.get("/api/jobs/{job_id}")
+async def get_job(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Processing job not found")
+    return jobs[job_id]
 
 @app.post("/api/process-and-reconstruct")
 async def process_and_reconstruct(file: UploadFile = File(...)):
-    file_path = UPLOAD_DIR / file.filename
-    with open(file_path, "wb") as buffer:
+    allowed = (".nii", ".nii.gz", ".dcm", ".zip")
+    if not file.filename or not file.filename.lower().endswith(allowed):
+        raise HTTPException(status_code=415, detail="Upload a NIfTI or DICOM file")
+    job_id = uuid.uuid4().hex[:12]
+    safe_name = Path(file.filename).name
+    file_path = UPLOAD_DIR / f"{job_id}_{safe_name}"
+    jobs[job_id] = {"id": job_id, "filename": safe_name, "status": "processing", "models": [], "errors": []}
+    with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-        
-    scan_name = Path(file.filename).stem
-    scan_output_dir = OUTPUT_DIR / scan_name
+    scan_output_dir = OUTPUT_DIR / job_id
     scan_output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Module 2: Medical Imaging Data Processing (TotalSegmentator)
     try:
-        cmd = ["TotalSegmentator", "-i", str(file_path), "-o", str(scan_output_dir)]
-        subprocess.run(cmd, capture_output=True, text=True, check=True)
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Segmentation failed: {e.stderr}")
-        
-    # Module 1: 3D Human Body Model Reconstruction (Converting NIfTI masks to 3D Meshes)
-    reconstructed_meshes = []
-    for mask_file in scan_output_dir.glob("*.nii.gz"):
-        try:
+        command = ["TotalSegmentator", "-i", str(file_path), "-o", str(scan_output_dir)]
+        result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=1800)
+        jobs[job_id]["log"] = result.stdout[-2000:]
+        for mask_file in scan_output_dir.glob("*.nii.gz"):
             img = nib.load(str(mask_file))
             data = img.get_fdata()
-            
-            # Check if mask has any segmented content
-            if np.any(data > 0):
-                # Extract 3D isosurface using Marching Cubes (Deep Learning/Math Modeling approach)
-                verts, faces, normals, values = measure.marching_cubes(data, level=0.5)
-                
-                mesh = trimesh.Trimesh(vertices=verts, faces=faces, vertex_normals=normals)
-                
-                # Smooth and simplify mesh for high-end visualization
-                mesh = mesh.simplify_quadratic_decimation(len(faces) // 2)
-                
-                mesh_filename = f"{mask_file.name.split('.')[0]}.obj"
-                mesh_path = MESH_DIR / mesh_filename
-                mesh.export(str(mesh_path))
-                reconstructed_meshes.append(mesh_filename)
-        except Exception as ex:
-            continue
+            if not np.any(data > 0):
+                continue
+            verts, faces, normals, _ = measure.marching_cubes(data, level=0.5)
+            mesh = trimesh.Trimesh(vertices=verts, faces=faces, vertex_normals=normals, process=True)
+            mesh.remove_degenerate_faces()
+            mesh.remove_unreferenced_vertices()
+            mesh_name = f"{job_id}_{mask_file.name.replace('.nii.gz', '')}.obj"
+            mesh.export(str(MESH_DIR / mesh_name))
+            jobs[job_id]["models"].append(mesh_name)
+        jobs[job_id]["status"] = "completed"
+    except subprocess.TimeoutExpired:
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["errors"].append("Segmentation exceeded the 30 minute processing limit")
+    except (subprocess.CalledProcessError, Exception) as error:
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["errors"].append(str(error))
+        raise HTTPException(status_code=500, detail=jobs[job_id])
+    return jobs[job_id]
 
-    return {
-        "status": "success",
-        "filename": file.filename,
-        "reconstructed_3d_models": reconstructed_meshes,
-        "message": "Full processing and 3D solid model reconstruction complete."
-    }
+app.mount("/models", StaticFiles(directory=MESH_DIR), name="models")

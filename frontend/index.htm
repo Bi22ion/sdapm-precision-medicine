@@ -1,59 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDAPM - AI-Assisted Precision Medicine Platform</title>
-    <style>
-        body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; }
-        header { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-        main { display: flex; height: calc(100vh - 73px); }
-        sidebar { width: 350px; background: #1e293b; padding: 1.5rem; border-right: 1px solid #334155; overflow-y: auto; }
-        #viewer-container { flex-grow: 1; position: relative; }
-        .btn { background: #3b82f6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem; }
-        .btn:hover { background: #2563eb; }
-        .upload-box { border: 2px dashed #475569; padding: 2rem; text-align: center; border-radius: 8px; margin-bottom: 1.5rem; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDAPM / Precision Medicine OS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui']},colors:{ink:'#08111f',panel:'#0e1a2b',line:'#20344d',cyan:'#58d6e9',mint:'#83e4c0'}}}}}</script>
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08111f;color:#dbe8f5;font-family:Inter,ui-sans-serif,system-ui,sans-serif}button,input{font:inherit}.grid-bg{background-image:linear-gradient(rgba(74,119,150,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(74,119,150,.08) 1px,transparent 1px);background-size:32px 32px}.glass{background:rgba(14,26,43,.82);backdrop-filter:blur(16px)}.range{accent-color:#58d6e9}.scanline{background:linear-gradient(90deg,transparent,#58d6e9,transparent);height:1px;animation:scan 4s ease-in-out infinite}@keyframes scan{0%,100%{opacity:.15;transform:translateX(-25%)}50%{opacity:1;transform:translateX(25%)}}.mono{font-family:'SFMono-Regular',Consolas,monospace}.nav-active{background:rgba(88,214,233,.1);color:#b9f4f7;border-right:2px solid #58d6e9}
+  </style>
 </head>
 <body>
-    <header>
-        <h2>SDAPM Precision Medicine</h2>
-        <span>Module 4: 3D Visualization & Surgical Dashboard</span>
+  <div class="min-h-screen grid-bg">
+    <header class="h-16 border-b border-line/80 flex items-center justify-between px-6 glass">
+      <div class="flex items-center gap-3"><div class="size-8 rounded-lg bg-cyan/15 border border-cyan/40 flex items-center justify-center text-cyan font-bold">S</div><div><div class="text-sm font-semibold tracking-wide">SDAPM</div><div class="text-[10px] uppercase tracking-[.2em] text-slate-500">Precision medicine OS</div></div></div>
+      <div class="hidden md:flex items-center gap-8 text-xs text-slate-400"><span>CASE <strong class="text-slate-200">ONC-24018</strong></span><span class="flex items-center gap-2"><span class="size-2 rounded-full bg-mint shadow-[0_0_10px_#83e4c0]"></span>Systems nominal</span><span class="size-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-200">DR</span></div>
     </header>
-    <main>
-        <sidebar>
-            <h3>Medical Data Pipeline</h3>
-            <div class="upload-box">
-                <p>Upload CT/MRI Scan (.nii.gz)</p>
-                <input type="file" id="scanFile" style="margin-top: 10px;">
-            </div>
-            <button class="btn" onclick="uploadScan()">Run AI Reconstruction</button>
-            <h3 style="margin-top: 2rem;">Simulation Controls</h3>
-            <p>Select reconstructed 3D anatomical models to perform virtual surgical cuts and collision testing.</p>
-        </sidebar>
-        <div id="viewer-container">
-            <!-- Three.js 3D WebGL Canvas goes here -->
-        </div>
-    </main>
-    <script>
-        async function uploadScan() {
-            const fileInput = document.getElementById('scanFile');
-            if (fileInput.files.length === 0) {
-                alert('Please select a medical scan file first.');
-                return;
-            }
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            
-            alert('Processing scan and reconstructing 3D solid models... Please wait.');
-            const response = await fetch('/api/process-and-reconstruct', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-            console.log(result);
-            alert('3D Reconstruction complete! Models generated.');
-        }
-    </script>
+    <div class="flex min-h-[calc(100vh-4rem)]">
+      <aside class="hidden lg:flex w-60 shrink-0 border-r border-line/80 p-4 flex-col glass">
+        <div class="px-3 pt-2 pb-4 text-[10px] uppercase tracking-[.2em] text-slate-500">Workspace</div>
+        <nav class="flex flex-col gap-1 text-sm">
+          <button class="nav-active flex items-center gap-3 rounded-lg px-3 py-3 text-left"><span class="text-cyan">◈</span> Case overview</button>
+          <button class="flex items-center gap-3 rounded-lg px-3 py-3 text-left text-slate-400 hover:text-slate-100"><span>◌</span> Imaging pipeline</button>
+          <button class="flex items-center gap-3 rounded-lg px-3 py-3 text-left text-slate-400 hover:text-slate-100"><span>◇</span> Anatomy models</button>
+          <button class="flex items-center gap-3 rounded-lg px-3 py-3 text-left text-slate-400 hover:text-slate-100"><span>⌁</span> Surgical simulation</button>
+        </nav>
+        <div class="mt-auto rounded-xl border border-line bg-ink/60 p-3"><div class="flex items-center justify-between text-xs"><span class="text-slate-400">Compute pool</span><span class="text-mint">82%</span></div><div class="mt-3 h-1.5 rounded-full bg-slate-800"><div class="h-full w-[82%] rounded-full bg-gradient-to-r from-cyan to-mint"></div></div><div class="mt-2 text-[10px] text-slate-500 mono">GPU-A100 / 04 online</div></div>
+      </aside>
+      <main class="flex-1 p-5 lg:p-7 overflow-hidden">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-6"><div><div class="text-xs text-cyan mono mb-2">CASE / ONC-24018 / ACTIVE REVIEW</div><h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-white">Patient-specific anatomy workspace</h1><p class="mt-2 text-sm text-slate-400">Review reconstructed structures and test surgical approach hypotheses.</p></div><button id="newCase" class="rounded-lg border border-cyan/40 bg-cyan/10 px-4 py-2.5 text-sm font-medium text-cyan hover:bg-cyan/20">＋ New case</button></div>
+        <section class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5"><div class="rounded-xl border border-line bg-panel/80 p-4"><div class="text-xs text-slate-500">Processing status</div><div class="mt-2 flex items-end justify-between"><strong id="statusValue" class="text-xl text-mint">Completed</strong><span class="text-xs text-slate-500">04:18</span></div></div><div class="rounded-xl border border-line bg-panel/80 p-4"><div class="text-xs text-slate-500">Structures reconstructed</div><div class="mt-2 flex items-end justify-between"><strong class="text-xl text-white">12</strong><span class="text-xs text-cyan">+3 today</span></div></div><div class="rounded-xl border border-line bg-panel/80 p-4"><div class="text-xs text-slate-500">Model confidence</div><div class="mt-2 flex items-end justify-between"><strong class="text-xl text-white">96.8%</strong><span class="text-xs text-mint">High</span></div></div><div class="rounded-xl border border-line bg-panel/80 p-4"><div class="text-xs text-slate-500">Simulation margin</div><div class="mt-2 flex items-end justify-between"><strong class="text-xl text-white">4.2 <small class="text-sm font-normal">mm</small></strong><span class="text-xs text-amber-300">Review</span></div></div></section>
+        <section class="grid xl:grid-cols-[minmax(0,1fr)_340px] gap-5">
+          <div class="rounded-2xl border border-line bg-panel/75 overflow-hidden min-h-[520px]"><div class="flex items-center justify-between border-b border-line px-5 py-4"><div><div class="text-sm font-semibold text-white">3D anatomy model</div><div class="text-xs text-slate-500 mt-1">Reconstruction / organ segmentation / v2.4</div></div><div class="flex gap-2"><button id="rotate" class="rounded-md border border-line px-3 py-1.5 text-xs text-slate-300 hover:border-cyan/50">Rotate</button><button id="reset" class="rounded-md border border-line px-3 py-1.5 text-xs text-slate-300 hover:border-cyan/50">Reset view</button></div></div><div id="viewer" class="relative h-[420px] bg-[#091522]"><div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(45,94,121,.22),transparent_55%)]"></div><div class="absolute left-5 top-5 z-10 text-[10px] uppercase tracking-widest text-slate-500">Anterior / axial reference</div><div class="absolute bottom-4 left-5 z-10 flex items-center gap-2 text-[10px] text-slate-500"><span class="size-2 rounded-full bg-cyan"></span> Segmented anatomy <span class="ml-3 size-2 rounded-full bg-rose-300"></span> Lesion region</div></div><div class="scanline"></div><div class="flex items-center justify-between border-t border-line px-5 py-3 text-xs"><span class="text-slate-500 mono">MESH · 842K FACES · 0.42MM VOXEL</span><button id="isolate" class="text-cyan hover:text-white">Isolate target →</button></div></div>
+          <div class="flex flex-col gap-5"><div class="rounded-2xl border border-line bg-panel/75 p-5"><div class="flex items-center justify-between"><div><div class="text-sm font-semibold text-white">Processing pipeline</div><div class="text-xs text-slate-500 mt-1">CT_Abdomen_01.nii.gz</div></div><span class="rounded-full bg-mint/10 px-2 py-1 text-[10px] text-mint">READY</span></div><div class="mt-5 flex flex-col gap-4 text-xs"><div class="flex gap-3"><span class="size-5 rounded-full bg-mint/15 text-mint flex items-center justify-center">✓</span><div><div class="text-slate-200">DICOM normalization</div><div class="text-slate-500 mt-1 mono">Completed · 00:42</div></div></div><div class="flex gap-3"><span class="size-5 rounded-full bg-mint/15 text-mint flex items-center justify-center">✓</span><div><div class="text-slate-200">TotalSegmentator</div><div class="text-slate-500 mt-1 mono">Completed · 02:51</div></div></div><div class="flex gap-3"><span class="size-5 rounded-full bg-cyan/15 text-cyan flex items-center justify-center">✓</span><div><div class="text-slate-200">Mesh optimization</div><div class="text-slate-500 mt-1 mono">Completed · 00:45</div></div></div></div><button id="reprocess" class="mt-5 w-full rounded-lg border border-line py-2.5 text-xs text-slate-300 hover:border-cyan/50 hover:text-cyan">Reprocess scan</button></div>
+          <div class="rounded-2xl border border-line bg-panel/75 p-5"><div class="flex items-center justify-between"><div class="text-sm font-semibold text-white">Surgical simulation</div><span class="text-[10px] uppercase tracking-widest text-slate-500">Live</span></div><div class="mt-5 flex flex-col gap-4"><label class="text-xs text-slate-400">Cutting plane depth <span id="depthValue" class="float-right text-cyan mono">42 mm</span><input id="depth" type="range" min="10" max="80" value="42" class="range mt-3 w-full" /></label><label class="text-xs text-slate-400">Tissue opacity <span id="opacityValue" class="float-right text-cyan mono">78%</span><input id="opacity" type="range" min="20" max="100" value="78" class="range mt-3 w-full" /></label><button id="simulate" class="rounded-lg bg-cyan px-4 py-2.5 text-sm font-semibold text-ink hover:bg-white">Run cut simulation</button><div id="simResult" class="hidden rounded-lg border border-mint/30 bg-mint/5 p-3 text-xs text-mint">Plane intersects target volume · estimated resection: 12.4 cm³</div></div></div></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script type="module">
+    import * as THREE from 'three'; import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+    const mount=document.getElementById('viewer'); const scene=new THREE.Scene(); const camera=new THREE.PerspectiveCamera(32,mount.clientWidth/mount.clientHeight,.1,100); camera.position.set(2.9,1.5,4.4); const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(mount.clientWidth,mount.clientHeight); renderer.shadowMap.enabled=true; mount.appendChild(renderer.domElement); const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.autoRotate=true; controls.autoRotateSpeed=.65; const hemi=new THREE.HemisphereLight(0x9ddcf2,0x07111d,2.4); scene.add(hemi); const key=new THREE.DirectionalLight(0xffffff,3); key.position.set(3,4,4); key.castShadow=true; scene.add(key); const group=new THREE.Group(); scene.add(group); const mat=new THREE.MeshPhysicalMaterial({color:0x62bfd0,roughness:.42,metalness:.05,transmission:.08,transparent:true,opacity:.82}); const accent=new THREE.MeshPhysicalMaterial({color:0xf49aaf,roughness:.3,emissive:0x38131f,emissiveIntensity:.25,transparent:true,opacity:.88});
+    const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.72,1.5,12,24),mat); torso.scale.set(.8,1.25,.48); torso.position.y=.15; group.add(torso); const organ=new THREE.Mesh(new THREE.SphereGeometry(.42,32,22),accent); organ.scale.set(1.25,.8,.8); organ.position.set(.22,.35,.42); group.add(organ); const spine=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,2.8,20),new THREE.MeshPhysicalMaterial({color:0xc3edf1,roughness:.28,transparent:true,opacity:.72})); spine.position.set(-.15,.2,-.25); group.add(spine); for(let y=-.7;y<=1.1;y+=.32){const rib=new THREE.Mesh(new THREE.TorusGeometry(.5,.025,8,32,Math.PI),new THREE.MeshBasicMaterial({color:0x8edbe5,transparent:true,opacity:.55})); rib.rotation.x=Math.PI/2; rib.position.y=y; rib.scale.set(1,.6,1); group.add(rib)}
+    function frame(){requestAnimationFrame(frame);controls.update();renderer.render(scene,camera)} frame(); new ResizeObserver(()=>{camera.aspect=mount.clientWidth/mount.clientHeight;camera.updateProjectionMatrix();renderer.setSize(mount.clientWidth,mount.clientHeight)}).observe(mount); document.getElementById('reset').onclick=()=>{camera.position.set(2.9,1.5,4.4);controls.target.set(0,0,0)}; document.getElementById('rotate').onclick=()=>controls.autoRotate=!controls.autoRotate; document.getElementById('isolate').onclick=()=>{organ.visible=!organ.visible;document.getElementById('isolate').textContent=organ.visible?'Isolate target →':'Show target →'};
+    document.getElementById('depth').oninput=e=>document.getElementById('depthValue').textContent=e.target.value+' mm'; document.getElementById('opacity').oninput=e=>{document.getElementById('opacityValue').textContent=e.target.value+'%';mat.opacity=e.target.value/100}; document.getElementById('simulate').onclick=()=>document.getElementById('simResult').classList.remove('hidden'); document.getElementById('reprocess').onclick=()=>{const s=document.getElementById('statusValue');s.textContent='Processing';s.className='text-xl text-amber-300';setTimeout(()=>{s.textContent='Completed';s.className='text-xl text-mint'},1800)}; document.getElementById('newCase').onclick=()=>alert('Case creation is ready for backend connection.');
+  </script>
 </body>
 </html>
