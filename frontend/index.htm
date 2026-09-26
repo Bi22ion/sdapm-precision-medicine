@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDAPM - AI-Assisted Precision Medicine Platform</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; }
+        header { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        main { display: flex; height: calc(100vh - 73px); }
+        sidebar { width: 350px; background: #1e293b; padding: 1.5rem; border-right: 1px solid #334155; overflow-y: auto; }
+        #viewer-container { flex-grow: 1; position: relative; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem; }
+        .btn:hover { background: #2563eb; }
+        .upload-box { border: 2px dashed #475569; padding: 2rem; text-align: center; border-radius: 8px; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>SDAPM Precision Medicine</h2>
+        <span>Module 4: 3D Visualization & Surgical Dashboard</span>
+    </header>
+    <main>
+        <sidebar>
+            <h3>Medical Data Pipeline</h3>
+            <div class="upload-box">
+                <p>Upload CT/MRI Scan (.nii.gz)</p>
+                <input type="file" id="scanFile" style="margin-top: 10px;">
+            </div>
+            <button class="btn" onclick="uploadScan()">Run AI Reconstruction</button>
+            <h3 style="margin-top: 2rem;">Simulation Controls</h3>
+            <p>Select reconstructed 3D anatomical models to perform virtual surgical cuts and collision testing.</p>
+        </sidebar>
+        <div id="viewer-container">
+            <!-- Three.js 3D WebGL Canvas goes here -->
+        </div>
+    </main>
+    <script>
+        async function uploadScan() {
+            const fileInput = document.getElementById('scanFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a medical scan file first.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            alert('Processing scan and reconstructing 3D solid models... Please wait.');
+            const response = await fetch('/api/process-and-reconstruct', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            console.log(result);
+            alert('3D Reconstruction complete! Models generated.');
+        }
+    </script>
+</body>
+</html>
