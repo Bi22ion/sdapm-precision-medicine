@@ -20,3 +20,9 @@ button { cursor: pointer; }
 @media (max-width: 1100px) { .content-grid { grid-template-columns: 1fr; }.right-rail { display: grid; grid-template-columns: 1fr 1fr; }.control-deck { width: 235px; } }
 @media (max-width: 760px) { .topbar { padding: 0 16px; }.case-selector { padding: 0 12px; }.top-status { display: none; }.control-deck { display: none; }.workspace { padding: 22px 15px; }.metric-grid { grid-template-columns: repeat(2, 1fr); }.right-rail { display: flex; }.workspace-head { flex-direction: column; }.secondary-btn { align-self: flex-start; }.viewport { min-height: 320px; }.bottom-note { align-items: start; flex-wrap: wrap; }.bottom-note svg:nth-of-type(2) { margin-left: 0; } }
 @media (max-width: 420px) { .metric-card { padding: 12px; }.metric-card strong { font-size: 17px; }.workspace-head h1 { font-size: 22px; }.viewport-footer { gap: 8px; }.viewport-footer .mono { font-size: 8px; } }
+.floating-tools { display: flex; flex-direction: column; gap: 0; }
+.floating-tools button { display: grid; place-items: center; min-width: 44px; min-height: 42px; border: 0; border-bottom: 1px solid #1b394a; color: #8eafbd; background: rgba(8, 23, 35, .92); cursor: pointer; }
+.floating-tools button:last-child { border-bottom: 0; }
+.floating-tools button:hover, .floating-tools button:focus-visible { color: #70e4ee; background: #10303a; outline: none; }
+.floating-tools svg { width: 16px; height: 16px; }
+.tool-divider { display: block; height: 7px; border-top: 1px solid #345262; background: rgba(8, 23, 35, .92); }
