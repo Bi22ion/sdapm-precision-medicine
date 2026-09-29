@@ -86,7 +86,7 @@ export default function Page() {
   const generateReport = () => { const report = `SDAPM clinical review\nCase: ONC-24018\nModel: ${modelOptions.find((item) => item.path === modelPath)?.label}\nScan: ${uploadedFile}\nSimulation depth: ${depth} mm\nTissue opacity: ${opacity}%\nSafety margin: 4.2 mm\n\nDecision-support output requires clinician validation.`; const url = URL.createObjectURL(new Blob([report], { type: 'text/plain' })); const link = document.createElement('a'); link.href = url; link.download = 'sdapm-clinical-review.txt'; link.click(); URL.revokeObjectURL(url); notify('Clinical review report generated') }
   const runSimulation = () => { setSimulated(false); window.setTimeout(() => setSimulated(true), 450) }
   const changeModel = (path: string) => { setModelPath(path); setSelectedStructure('No structure selected'); setZoom(1); setVerticalOffset(0); setManualRotation(0) }
-  const rotateModel = (direction: number) => { setManualRotation((value) => value + direction * Math.PI / 8); setRotating(false) }
+  const rotateModel = (direction: number) => { setManualRotation((value) => value + direction * Math.PI / 8) }
   const resetView = () => { setZoom(1); setVerticalOffset(0); setManualRotation(0); setRotating(true); notify('3D view reset') }
 
   return <div className="clinical-shell min-h-screen">
