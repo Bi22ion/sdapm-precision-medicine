@@ -2,7 +2,7 @@
 
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, useGLTF } from '@react-three/drei'
-import { useRef, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react'
 import type { Group, Mesh } from 'three'
 import { Activity, ArrowDown, ArrowUp, Box, Check, ChevronDown, CircleDot, Eye, FileUp, Gauge, Layers3, Maximize2, Pause, Play, RotateCcw, ScanLine, Settings2, ShieldCheck, Upload, Workflow, ZoomIn, ZoomOut } from 'lucide-react'
 
@@ -88,6 +88,20 @@ export default function Page() {
   const changeModel = (path: string) => { setModelPath(path); setSelectedStructure('No structure selected'); setZoom(1); setVerticalOffset(0); setManualRotation(0) }
   const rotateModel = (direction: number) => { setManualRotation((value) => value + direction * Math.PI / 8) }
   const resetView = () => { setZoom(1); setVerticalOffset(0); setManualRotation(0); setRotating(true); notify('3D view reset') }
+  const moveModel = (direction: number) => setVerticalOffset((value) => value + direction * 0.18)
+  const zoomModel = (direction: number) => setZoom((value) => Math.max(0.15, value + direction * 0.1))
+
+  useEffect(() => {
+    const handleViewerKey = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') { event.preventDefault(); moveModel(1) }
+      if (event.key === 'ArrowDown' || event.key === 'PageDown') { event.preventDefault(); moveModel(-1) }
+      if (event.key === '+' || event.key === '=') { event.preventDefault(); zoomModel(1) }
+      if (event.key === '-' || event.key === '_') { event.preventDefault(); zoomModel(-1) }
+    }
+    window.addEventListener('keydown', handleViewerKey)
+    return () => window.removeEventListener('keydown', handleViewerKey)
+  })
 
   return <div className="clinical-shell min-h-screen">
     <header className="topbar"><div className="brand"><div className="brand-mark">S</div><div><div className="brand-name">SDAPM</div><div className="eyebrow">Precision medicine OS</div></div></div><button className="case-selector" onClick={() => notify('Case selector is locked to the active review')}><span className="eyebrow">Active case</span><strong>ONC-24018</strong><ChevronDown /></button><div className="top-status"><span className="status-dot" /> Systems nominal <span className="user-chip">DR</span></div></header>
